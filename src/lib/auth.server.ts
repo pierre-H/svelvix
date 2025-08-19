@@ -12,6 +12,7 @@ export const createAuth = (ctx: GenericCtx) =>
 	betterAuth({
 		trustedOrigins: [process.env.PUBLIC_SITE_URL || ''],
 		database: convexAdapter(ctx, betterAuthComponent),
+		secret: process.env.BETTER_AUTH_SECRET,
 
 		// Simple non-verified email/password to get started
 		emailAndPassword: {
