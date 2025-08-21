@@ -10,6 +10,7 @@ import { redirect } from '@sveltejs/kit';
 export const createAuth = (ctx: GenericCtx) =>
 	// Configure your Better Auth instance here
 	betterAuth({
+		baseURL: PUBLIC_SITE_URL,
 		trustedOrigins: [process.env.PUBLIC_SITE_URL || ''],
 		database: convexAdapter(ctx, betterAuthComponent),
 		secret: process.env.BETTER_AUTH_SECRET,
