@@ -1,7 +1,9 @@
 import { BetterAuth, type AuthFunctions } from '@convex-dev/better-auth';
 import { components, internal } from './_generated/api';
-import { query } from './_generated/server';
+import { query, mutation } from './_generated/server';
 import type { Id, DataModel } from './_generated/dataModel';
+import { ConvexError } from 'convex/values';
+import { customCtx, customMutation, customQuery } from 'convex-helpers/server/customFunctions';
 
 // Typesafe way to pass Convex functions defined in this file
 const authFunctions: AuthFunctions = internal.auth;
@@ -48,3 +50,43 @@ export const getCurrentUser = query({
 		};
 	}
 });
+
+export const authQuery = customQuery(
+	query,
+	customCtx(async (ctx) => {
+		const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+
+		if (!userMetadata) {
+			throw new ConvexError('Not authenticated');
+		}
+
+		const userData = await ctx.db.get(userMetadata.userId as Id<'users'>);
+		if (!userData) {
+			throw new ConvexError('User not found');
+		}
+
+		return {
+			user: userData
+		};
+	})
+);
+
+export const authMutation = customMutation(
+	mutation,
+	customCtx(async (ctx) => {
+		const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+
+		if (!userMetadata) {
+			throw new ConvexError('Not authenticated');
+		}
+
+		const userData = await ctx.db.get(userMetadata.userId as Id<'users'>);
+		if (!userData) {
+			throw new ConvexError('User not found');
+		}
+
+		return {
+			user: userData
+		};
+	})
+);
