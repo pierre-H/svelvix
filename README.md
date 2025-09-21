@@ -92,3 +92,7 @@ Very simple to use, excellent performance, I like their modular vision. Plus, pe
 ## Other things
 
 A few random libraries I recommand you to use @thisux/sveltednd if you need to sort list, Lucide for icons, Gotenberg for generating PDF, ckeditor5 for WYSIWYG, apexcharts, libphonenumber-js, svelte-tel-input, Melt-UI, and all svelte-put packages.
+
+## Why not `@mmailaender/convex-better-auth-svelte ` ?
+
+I created Svelvix before `@mmailaender/convex-better-auth-svelte `. You can follow the official [doc](https://convex-better-auth.netlify.app/framework-guides/sveltekit) if you want. The result should be the same.
