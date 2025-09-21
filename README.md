@@ -14,6 +14,7 @@ Svelvix is a starter pack with :
 3. Create a `.env.local` from the `.env.dist` and fill it
 4. Set the environment variable : `bunx convex env set BETTER_AUTH_SECRET=$(openssl rand -base64 32)`
 5. Customize your [DaisyUI theme](https://daisyui.com/theme-generator/#theme=eJx1lNtuozAQhl_FQqq0lRrL4yPet3HANKgEI5tou7vqu3eAKAVM7rDnm9M_Y_4Xvbv64ndRhTiE6EZfvOF3F-IpVRc_m7r2_TLi9em0GM4u-RMwhqbw0VWXX7Z8IYwyBgSYppKL1z3N17TZ0jKjxZrmCy2ILKkBk8FV6Effjw8HDouDJkpTJje1DLG9uvj3wRo9sVwIAoLRUh2wWfx7swLL54watakoecTrdQqt5hQSiFCSClYe4nmWRSSQREhBwW7cXFWtWTNLxMESkJYqY3P2WRdQElCKllyvfXp_G6PrHjDIRVJJMD5XB-iz-Mcr0fZN-KmeTSRoRTgKpLfrMJH5hJfYFgjXhlqxKSjdsOGUdiMGYwhoQfm2kDucZ5idmMLqDadK8bXTHxf7tn__yTBPGEpBUEkr5AH7LIGxRGhUdDMxH2OIe3mmZjnOWGdkHlst8nCUBx_Avfbo6vaWcOM6X41zfB79dW1qWt_VeI-rpHamc_jcGVL7z6-DZbajaOcQaz_RMHzOF7Ufxst0nk99aNP0v2F4qn3jbh021bgu-bdiiL7xMeFb-bjffX0DOlJVwQ)
+6. Launch `npm run auth:generate` to generate the schema for the [local install](https://convex-better-auth.netlify.app/local-install)
 
 # Usage
 

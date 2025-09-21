@@ -1,35 +1,76 @@
-import { BetterAuth, type AuthFunctions } from '@convex-dev/better-auth';
+import { AuthFunctions, createClient } from '@convex-dev/better-auth';
+import { betterAuth } from 'better-auth';
+import { convex } from '@convex-dev/better-auth/plugins';
 import { components, internal } from './_generated/api';
 import { query, mutation } from './_generated/server';
-import type { Id, DataModel } from './_generated/dataModel';
+import type { Id, DataModel, GenericCtx } from './_generated/dataModel';
 import { ConvexError } from 'convex/values';
 import { customCtx, customMutation, customQuery } from 'convex-helpers/server/customFunctions';
+import authSchema from './betterAuth/schema';
 
 // Typesafe way to pass Convex functions defined in this file
 const authFunctions: AuthFunctions = internal.auth;
 
 // Initialize the component
-export const betterAuthComponent = new BetterAuth(components.betterAuth, {
-	authFunctions
+export const authComponent = createClient<DataModel>(components.betterAuth, {
+	authFunctions,
+	triggers: {
+		user: {
+			onCreate: async (ctx, authUser) => {
+				// Any `onCreateUser` logic should be moved here
+				const userId = await ctx.db.insert('users', {
+					name: authUser.name,
+					email: authUser.email
+				});
+				// Instead of returning the user id, we set it to the component
+				// user table manually. This is no longer required behavior, but
+				// is necessary when migrating from previous versions to avoid
+				// a required database migration.
+				// This helper method exists solely to facilitate this migration.
+				await authComponent.setUserId(ctx, authUser._id, userId);
+			},
+			onUpdate: async () => {
+				// Any `onUpdateUser` logic should be moved here
+			},
+			onDelete: async (ctx, authUser) => {
+				await ctx.db.delete(authUser.userId as Id<'users'>);
+			}
+		}
+	},
+	local: {
+		schema: authSchema
+	}
 });
 
-// These are required named exports
-export const { createUser, updateUser, deleteUser, createSession } =
-	betterAuthComponent.createAuthFunctions<DataModel>({
-		// Must create a user and return the user id
-		onCreateUser: async (ctx, user) => {
-			return ctx.db.insert('users', {
-				name: user.name,
-				email: user.email,
-				banned: Boolean(user.banned)
-			});
-		},
+// These will be used in the next step
+export const { onCreate, onUpdate, onDelete } = authComponent.triggersApi();
 
-		// Delete the user when they are deleted from Better Auth
-		onDeleteUser: async (ctx, userId) => {
-			await ctx.db.delete(userId as Id<'users'>);
+export const createAuth = (
+	ctx: GenericCtx<DataModel>,
+	{ optionsOnly } = { optionsOnly: false }
+) => {
+	return betterAuth({
+		baseURL: process.env.CONVEX_SITE_URL || '',
+		trustedOrigins: [process.env.CONVEX_SITE_URL || ''],
+		database: authComponent.adapter(ctx),
+		secret: process.env.BETTER_AUTH_SECRET,
+
+		// Simple non-verified email/password to get started
+		emailAndPassword: {
+			enabled: true,
+			requireEmailVerification: false
+		},
+		plugins: [
+			// The Convex plugin is required
+			convex()
+		],
+		// When createAuth is called just to generate options, we don't want to
+		// log anything
+		logger: {
+			disabled: optionsOnly
 		}
 	});
+};
 
 // Example function for getting the current user
 // Feel free to edit, omit, etc.
@@ -37,7 +78,7 @@ export const getCurrentUser = query({
 	args: {},
 	handler: async (ctx) => {
 		// Get user data from Better Auth - email, name, image, etc.
-		const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+		const userMetadata = await authComponent.safeGetAuthUser(ctx);
 		if (!userMetadata) {
 			return null;
 		}
@@ -54,7 +95,7 @@ export const getCurrentUser = query({
 export const authQuery = customQuery(
 	query,
 	customCtx(async (ctx) => {
-		const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+		const userMetadata = await authComponent.safeGetAuthUser(ctx);
 
 		if (!userMetadata) {
 			throw new ConvexError('Not authenticated');
@@ -74,7 +115,7 @@ export const authQuery = customQuery(
 export const authMutation = customMutation(
 	mutation,
 	customCtx(async (ctx) => {
-		const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+		const userMetadata = await authComponent.safeGetAuthUser(ctx);
 
 		if (!userMetadata) {
 			throw new ConvexError('Not authenticated');

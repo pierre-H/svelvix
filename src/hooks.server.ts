@@ -1,5 +1,5 @@
 import { PUBLIC_CONVEX_API_URL } from '$env/static/public';
-import { createAuth } from '$lib/auth.server';
+import { createAuth } from '$convex/auth';
 import { JWT_COOKIE_NAME } from '@convex-dev/better-auth/plugins';
 import type { Handle } from '@sveltejs/kit';
 import { createCookieGetter } from 'better-auth/cookies';
